@@ -1,4 +1,17 @@
+
+## dev and build
+
+uv develop and build using uv is good
+
+## uploading
+
+uvx twine upload dist/*
+
 ### install
+
+using pipx
+
+uvx does not work with package with mutiple scripts(?)
 
 ```sh
 ➜  ✗ pipx install echowuhao
@@ -14,8 +27,11 @@
 done! ✨ 🌟 ✨
 ```
 
-
-
 ## develop tool
 
 uv build
+
+
+## TODO:
+
+a full tutorial on how to create script and dist using pypi and install using uvx
