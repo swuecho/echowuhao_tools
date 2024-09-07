@@ -33,7 +33,7 @@ def generate_commit_message(diff):
         "Authorization": f"Bearer {OPENAI_API_KEY}",
     }
     payload = {
-        "model": "deepseek-coder",
+        "model": "deepseek-chat",
         "messages": [
             {
                 "role": "user",
