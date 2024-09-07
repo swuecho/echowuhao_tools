@@ -3,8 +3,9 @@ name = "echowuhao"
 version = "0.1.0"
 description = "Personal tools"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
+    "echowuhao",
     "requests>=2.32.3",
 ]
 
@@ -15,4 +16,10 @@ build-backend = "hatchling.build"
 [project.scripts]
 hello = "echowuhao:hello"
 auto_commit = "echowuhao.auto_commit.command_line:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["echowuhao"]
+
+[tool.uv.sources]
+echowuhao = { workspace = true }
 
