@@ -1,5 +1,6 @@
 ### install
 
+```sh
 ➜  ✗ pipx install echowuhao
 ⚠️  File exists at /Users/hwu/.local/bin/auto_commit and points to
     /Users/hwu/.local/share/uv/tools/echowuhao/bin/auto_commit, not /Users/hwu/.local/pipx/venvs/echowuhao/bin/auto_commit.
@@ -11,6 +12,8 @@
     - auto_commit (symlink missing or pointing to unexpected location)
     - hello (symlink missing or pointing to unexpected location)
 done! ✨ 🌟 ✨
+```
+
 
 
 ## develop tool
