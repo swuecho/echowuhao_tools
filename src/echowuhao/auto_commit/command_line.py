@@ -21,7 +21,7 @@ HTTP_PROXY = os.getenv('HTTPS_PROXY', '')
 
 def get_git_diff(diff_type):
     try:
-        result = subprocess.check_output(['git', 'diff'] + diff_type, text=True)
+        result = subprocess.check_output(['git', 'diff'] + diff_type, text=True, cwd=os.getcwd())
         return result
     except subprocess.CalledProcessError as e:
         print(f"Error getting git diff: {e}")
@@ -63,7 +63,7 @@ def main():
     # 检查工作目录状态
     print("检查工作目录状态...")
     try:
-        subprocess.run(['git', 'status'], check=True)
+        subprocess.run(['git', 'status'], check=True, cwd=os.getcwd())
     except subprocess.CalledProcessError as e:
         print(f"Error checking git status: {e}")
         return
@@ -88,7 +88,7 @@ def main():
     # git add
     print("git add...")
     try:
-        subprocess.run(['git', 'add', '.',  '-A'], check=True)
+        subprocess.run(['git', 'add', '.',  '-A'], check=True, cwd=os.getcwd())
     except subprocess.CalledProcessError as e:
         print(f"Error adding changes: {e}")
         return
@@ -96,7 +96,7 @@ def main():
     # 提交代码
     print("git commit...")
     try:
-        subprocess.run(['git', 'commit', '-m', commit_message], check=True)
+        subprocess.run(['git', 'commit', '-m', commit_message], check=True, cwd=os.getcwd())
     except subprocess.CalledProcessError as e:
         print(f"Error committing changes: {e}")
         return
@@ -104,7 +104,7 @@ def main():
     # push
     print("git push...")
     try:
-        subprocess.run(['git', 'push'], check=True)
+        subprocess.run(['git', 'push'], check=True, cwd=os.getcwd())
     except subprocess.CalledProcessError as e:
         print(f"Error pushing changes: {e}")
         return
