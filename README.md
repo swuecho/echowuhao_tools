@@ -9,14 +9,16 @@ Installed 1 package in 8ms
  - echowuhao==0.2.0 (from file:///Users/hwu/dev/py_lib/echowuhao)
  + echowuhao==0.3.4
 Installed 2 executables: auto_commit, hello
-➜  ~ hello
-Hello from echowuhao!
+
 ➜  ~ uv tool list
 echowuhao v0.3.4
 - auto_commit
 - hello
 ruff v0.6.4
 - ruff
+
+➜  ~ hello
+Hello from echowuhao!
 ```
 
 ## dev
