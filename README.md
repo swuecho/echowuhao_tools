@@ -1,41 +1,53 @@
+# README
 
-## dev and build
+```sh
+➜  ~ uv tool install echowuhao==0.3.4
+Resolved 6 packages in 2.13s
+Prepared 1 package in 192ms
+Uninstalled 1 package in 7ms
+Installed 1 package in 8ms
+ - echowuhao==0.2.0 (from file:///Users/hwu/dev/py_lib/echowuhao)
+ + echowuhao==0.3.4
+Installed 2 executables: auto_commit, hello
+➜  ~ hello
+Hello from echowuhao!
+➜  ~ uv tool list
+echowuhao v0.3.4
+- auto_commit
+- hello
+ruff v0.6.4
+- ruff
+```
+
+## dev
 
 uv develop and build using uv is good
 
-## uploading
-
-uvx twine upload dist/*
-
-### install
-
-using pipx
-
-uvx does not work with package with mutiple scripts(?)
-
 ```sh
-➜  ✗ pipx install echowuhao
-⚠️  File exists at /Users/hwu/.local/bin/auto_commit and points to
-    /Users/hwu/.local/share/uv/tools/echowuhao/bin/auto_commit, not /Users/hwu/.local/pipx/venvs/echowuhao/bin/auto_commit.
-    Not modifying.
-⚠️  File exists at /Users/hwu/.local/bin/hello and points to /Users/hwu/.local/share/uv/tools/echowuhao/bin/hello, not
-    /Users/hwu/.local/pipx/venvs/echowuhao/bin/hello. Not modifying.
-  installed package echowuhao 0.2.0, installed using Python 3.12.5
-  These apps are now globally available
-    - auto_commit (symlink missing or pointing to unexpected location)
-    - hello (symlink missing or pointing to unexpected location)
-done! ✨ 🌟 ✨
-```
-
-## develop tool
-
 uv sync
 uv lock
 uv build
+```
 
-## upload
+## uploading
 
+```sh
 uvx twine upload dist/*
+```
+
+### install
+
+using uv
+
+```sh
+uv tool install echowuhao=0.3.4
+```
+
+using pipx
+
+```sh
+pipx install echowuhao==0.3.4
+```
 
 ## TODO:
 
