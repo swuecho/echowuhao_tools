@@ -37,20 +37,18 @@ uv build
 uvx twine upload dist/*
 ```
 
-### install
+## install
 
-using uv
+### using uv
 
 ```sh
 uv tool install echowuhao=0.3.4
 ```
 
-using pipx
+or
+
+### using pipx
 
 ```sh
 pipx install echowuhao==0.3.4
 ```
-
-## TODO:
-
-a full tutorial on how to create script and dist using pypi and install using uvx
