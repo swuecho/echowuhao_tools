@@ -29,8 +29,13 @@ done! ✨ 🌟 ✨
 
 ## develop tool
 
+uv sync
+uv lock
 uv build
 
+## upload
+
+uvx twine upload dist/*
 
 ## TODO:
 
