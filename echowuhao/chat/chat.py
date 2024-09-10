@@ -23,15 +23,17 @@ client = OpenAI(
 def get_system_prompt(default_system_message):
     return Prompt.ask("Enter system prompt", default=default_system_message)
 
+
 def update_system_prompt(default_system_message, conversation_history):
     new_prompt = get_system_prompt(default_system_message)
     conversation_history[0] = {"role": "system", "content": new_prompt}
 
-def save_conversation(conversation_history):
+
+def save_conversation(model, conversation_history):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"conversation_{timestamp}.json"
+    filename = f"conversation_{timestamp}_{model}.json"
     save_path = Path.home() / ".local/share/chat" / filename
-    
+
     with open(save_path, "w") as f:
         json.dump(conversation_history, f, indent=2)
     return save_path
@@ -42,6 +44,7 @@ def chat():
     model_file_path = Path.home() / ".local/share/chat/selected_model.json"
     with open(model_file_path, "r") as f:
         selected_model = json.load(f)
+    model = (selected_model["id"],)
 
     # Create a Rich console
     console = Console()
@@ -61,7 +64,7 @@ def chat():
         user_message = Prompt.ask("You", default="exit")
 
         if user_message.lower() == "exit":
-            save_path = save_conversation(conversation_history)
+            save_path = save_conversation(model, conversation_history)
             console.print(f"Conversation saved to: {save_path}", style="bold green")
             console.print("Goodbye!", style="bold yellow")
             break
@@ -78,8 +81,13 @@ def chat():
                 )
                 == "y"
             ):
-                update_system_prompt(default_system_message, conversation_history, console)
-                console.print(f"System prompt updated to: {conversation_history[0]['content']}", style="bold yellow")
+                update_system_prompt(
+                    default_system_message, conversation_history, console
+                )
+                console.print(
+                    f"System prompt updated to: {conversation_history[0]['content']}",
+                    style="bold yellow",
+                )
             continue
 
         # Add user message to conversation history
@@ -88,13 +96,11 @@ def chat():
         # Send the message to the OpenAI API with streaming
         try:
             stream = client.chat.completions.create(
-                model=selected_model["id"],
-                messages=conversation_history,
-                stream=True
+                model=model, messages=conversation_history, stream=True
             )
 
             console.print("AI:", style="bold green", end="")
-            
+
             full_response = ""
             with Live(Markdown(full_response), refresh_per_second=4) as live:
                 for chunk in stream:
@@ -107,8 +113,6 @@ def chat():
 
         except Exception as e:
             console.print(f"An error occurred: {str(e)}", style="bold red")
-
-
 
 
 if __name__ == "__main__":
