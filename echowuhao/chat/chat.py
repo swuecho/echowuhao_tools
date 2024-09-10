@@ -5,6 +5,8 @@ from rich.console import Console
 from rich.prompt import Prompt
 from openai import OpenAI
 from datetime import datetime
+from rich.live import Live
+from rich.markdown import Markdown
 
 try:
     os.getenv("SILICONFLOW_API_KEY")
@@ -83,20 +85,25 @@ def chat():
         # Add user message to conversation history
         conversation_history.append({"role": "user", "content": user_message})
 
-        # Send the message to the OpenAI API
+        # Send the message to the OpenAI API with streaming
         try:
-            response = client.chat.completions.create(
-                model=selected_model["id"], messages=conversation_history
+            stream = client.chat.completions.create(
+                model=selected_model["id"],
+                messages=conversation_history,
+                stream=True
             )
 
-            # Get AI's response
-            ai_response = response.choices[0].message.content
-
-            # Print the AI's response
-            console.print("AI:", ai_response, style="bold green")
+            console.print("AI:", style="bold green", end="")
+            
+            full_response = ""
+            with Live(Markdown(full_response), refresh_per_second=4) as live:
+                for chunk in stream:
+                    if chunk.choices[0].delta.content is not None:
+                        full_response += chunk.choices[0].delta.content
+                        live.update(Markdown(full_response))
 
             # Add AI's response to conversation history
-            conversation_history.append({"role": "assistant", "content": ai_response})
+            conversation_history.append({"role": "assistant", "content": full_response})
 
         except Exception as e:
             console.print(f"An error occurred: {str(e)}", style="bold red")
