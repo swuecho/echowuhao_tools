@@ -44,7 +44,17 @@ def main():
     console = Console()
     model_list = get_model_list()
     display_model_table(model_list)
-    selected_index = select_model(model_list)
+    
+    choices = [str(i) for i in range(1, len(model_list) + 1)] + ['q']
+    selected_index = Prompt.ask(
+        "Enter the index of the model you want to select (or 'q' to exit)",
+        choices=choices
+    )
+    
+    if selected_index.lower() == 'q':
+        console.print("Exiting the model selection process.", style="bold yellow")
+        return
+    
     selected_model = model_list[int(selected_index) - 1]
     store_selected_model(selected_model)
     
