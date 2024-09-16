@@ -1,5 +1,27 @@
 # README
 
+## run without install
+
+```sh
+➜  ~ uv tool list
+echowuhao v0.3.4
+- auto_commit
+- hello
+ruff v0.6.4
+- ruff
+➜  ~ uvx echowuhao
+The executable `echowuhao` was not found.
+warning: An executable named `echowuhao` is not provided by package `echowuhao`.
+The following executables are provided by `echowuhao`:
+- auto_commit
+- hello
+➜  ~ uvx --from echowuhao hello
+Hello from echowuhao!
+➜  ~
+```
+
+## install and run
+
 ```sh
 ➜  ~ uv tool install echowuhao==0.3.4
 Resolved 6 packages in 2.13s
