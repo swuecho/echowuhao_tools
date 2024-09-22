@@ -32,16 +32,26 @@ def update_system_prompt(default_system_message, conversation_history):
 def save_conversation(model: str, conversation_history):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"conversation_{timestamp}_{model.replace('/', '_')}.json"
-    save_path = Path.home() / ".local/share/chat" / filename
-
+    storage_path = get_config_dir()
+    save_path = storage_path / filename
     with open(save_path, "w") as f:
         json.dump(conversation_history, f, indent=2)
     return save_path
 
 
+def get_config_dir() -> Path:
+    dotChatDir = Path(os.getcwd()) / ".chat"
+    if dotChatDir.exists():
+        storage_path = dotChatDir
+    else:
+        storage_path = Path.home() / ".local/share/chat"
+    return storage_path
+
+
 def main():
     # Read the selected model from the JSON file
-    model_file_path = Path.home() / ".local/share/chat/selected_model.json"
+    storage_path = get_config_dir()
+    model_file_path = storage_path / "selected_model.json"
     with open(model_file_path, "r") as f:
         selected_model = json.load(f)
     model = selected_model["id"]
