@@ -1,6 +1,6 @@
 [project]
 name = "echowuhao"
-version = "0.3.8"
+version = "0.3.9"
 description = "Personal tools"
 readme = "README.md"
 requires-python = ">=3.8"
