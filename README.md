@@ -20,6 +20,12 @@ Hello from echowuhao!
 ➜  ~
 ```
 
+### run latest version without install
+
+```sh
+uvx  --from echowuhao@latest hello
+```
+
 ## install and run
 
 ```sh
@@ -41,6 +47,24 @@ ruff v0.6.4
 
 ➜  ~ hello
 Hello from echowuhao!
+```
+
+### upgrade
+
+```sh
+➜  dev uv tool upgrade echowuhao
+Updated echowuhao v0.3.6 -> v0.3.7
+ - anyio==4.4.0
+ + anyio==4.6.0
+ - echowuhao==0.3.6
+ + echowuhao==0.3.7
+ - openai==1.45.0
+ + openai==1.47.0
+ - pydantic==2.9.1
+ + pydantic==2.9.2
+ - pydantic-core==2.23.3
+ + pydantic-core==2.23.4
+Installed 4 executables: auto_commit, chat, choose_model, hello
 ```
 
 ## dev
