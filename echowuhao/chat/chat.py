@@ -61,7 +61,7 @@ def main():
 
     while True:
         # Ask the user for a message
-        user_message = Prompt.ask("You", default="/?")
+        user_message = Prompt.ask("You", default="/h")
 
         if user_message.lower() == "/h":
             console.print(
