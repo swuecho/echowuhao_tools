@@ -29,9 +29,9 @@ def update_system_prompt(default_system_message, conversation_history):
     conversation_history[0] = {"role": "system", "content": new_prompt}
 
 
-def save_conversation(model, conversation_history):
+def save_conversation(model: str, conversation_history):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"conversation_{timestamp}_{model}.json"
+    filename = f"conversation_{timestamp}_{model.replace('/', '_')}.json"
     save_path = Path.home() / ".local/share/chat" / filename
 
     with open(save_path, "w") as f:
@@ -44,7 +44,7 @@ def main():
     model_file_path = Path.home() / ".local/share/chat/selected_model.json"
     with open(model_file_path, "r") as f:
         selected_model = json.load(f)
-    model = (selected_model["id"],)
+    model = selected_model["id"]
 
     # Create a Rich console
     console = Console()
@@ -81,9 +81,7 @@ def main():
                 )
                 == "y"
             ):
-                update_system_prompt(
-                    default_system_message, conversation_history
-                )
+                update_system_prompt(default_system_message, conversation_history)
                 console.print(
                     f"System prompt updated to: {conversation_history[0]['content']}",
                     style="bold yellow",
