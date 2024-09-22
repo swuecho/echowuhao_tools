@@ -39,7 +39,7 @@ def save_conversation(model, conversation_history):
     return save_path
 
 
-def chat():
+def main():
     # Read the selected model from the JSON file
     model_file_path = Path.home() / ".local/share/chat/selected_model.json"
     with open(model_file_path, "r") as f:
@@ -116,4 +116,4 @@ def chat():
 
 
 if __name__ == "__main__":
-    chat()
+    main()
