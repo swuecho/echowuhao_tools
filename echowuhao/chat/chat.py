@@ -19,6 +19,29 @@ client = OpenAI(
     api_key=os.getenv("SILICONFLOW_API_KEY"), base_url="https://api.siliconflow.cn/v1"
 )
 
+def get_config_dir() -> Path:
+    dotChatDir = Path(os.getcwd()) / ".chat"
+    if dotChatDir.exists():
+        storage_path = dotChatDir
+    else:
+        storage_path = Path.home() / ".local/share/chat"
+    return storage_path
+
+
+def get_default_system_message():
+    default_system_message = "You are a helpful AI assistant."
+    storage_dir = get_config_dir()
+    prompt_file_path = storage_dir / "prompt"
+    if prompt_file_path.exists():
+        default_system_message = prompt_file_path.read_text()
+    return default_system_message
+
+
+def set_default_system_message(prompt: str):
+    storage_dir = get_config_dir()
+    prompt_file_path = storage_dir / "prompt"
+    prompt_file_path.write_text(prompt)
+
 
 def get_system_prompt(default_system_message):
     return Prompt.ask("Enter system prompt", default=default_system_message)
@@ -27,7 +50,7 @@ def get_system_prompt(default_system_message):
 def update_system_prompt(default_system_message, conversation_history):
     new_prompt = get_system_prompt(default_system_message)
     conversation_history[0] = {"role": "system", "content": new_prompt}
-
+    set_default_system_message(new_prompt)
 
 def save_conversation(model: str, conversation_history):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -37,15 +60,6 @@ def save_conversation(model: str, conversation_history):
     with open(save_path, "w") as f:
         json.dump(conversation_history, f, indent=2)
     return save_path
-
-
-def get_config_dir() -> Path:
-    dotChatDir = Path(os.getcwd()) / ".chat"
-    if dotChatDir.exists():
-        storage_path = dotChatDir
-    else:
-        storage_path = Path.home() / ".local/share/chat"
-    return storage_path
 
 
 def main():
