@@ -82,7 +82,7 @@ def main():
                 == "y"
             ):
                 update_system_prompt(
-                    default_system_message, conversation_history, console
+                    default_system_message, conversation_history
                 )
                 console.print(
                     f"System prompt updated to: {conversation_history[0]['content']}",
