@@ -55,20 +55,30 @@ def main():
     conversation_history = [{"role": "system", "content": default_system_message}]
 
     console.print(
-        "Chat started. Type 'exit' to end, 'system' to view/change the system prompt.",
+        "Chat started. Type '/clear' to clear conversation, '/exit' to end,  '/h' to help, '/system' to view/change the system prompt.",
         style="bold cyan",
     )
 
     while True:
         # Ask the user for a message
-        user_message = Prompt.ask("You", default="exit")
+        user_message = Prompt.ask("You", default="/?")
 
-        if user_message.lower() == "exit":
+        if user_message.lower() == "/h":
+            console.print(
+                "Chat started. Type '/clear' to clear conversation, '/exit' to end,  '/h' to help, '/system' to view/change the system prompt.",
+                style="bold cyan",
+            )
+            continue
+        elif user_message.lower() == "/exit":
             save_path = save_conversation(model, conversation_history)
             console.print(f"Conversation saved to: {save_path}", style="bold green")
             console.print("Goodbye!", style="bold yellow")
             break
-        elif user_message.lower() == "system":
+        elif user_message.lower() == "/clear":
+            conversation_history = [conversation_history[0]]
+            console.clear()
+            continue
+        elif user_message.lower() == "/system":
             console.print(
                 f"Current system prompt: {conversation_history[0]['content']}",
                 style="bold magenta",
