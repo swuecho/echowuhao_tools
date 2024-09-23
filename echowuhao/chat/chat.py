@@ -19,6 +19,7 @@ client = OpenAI(
     api_key=os.getenv("SILICONFLOW_API_KEY"), base_url="https://api.siliconflow.cn/v1"
 )
 
+
 def get_config_dir() -> Path:
     dotChatDir = Path(os.getcwd()) / ".chat"
     if dotChatDir.exists():
@@ -51,6 +52,7 @@ def update_system_prompt(default_system_message, conversation_history):
     new_prompt = get_system_prompt(default_system_message)
     conversation_history[0] = {"role": "system", "content": new_prompt}
     set_default_system_message(new_prompt)
+
 
 def save_conversation(model: str, conversation_history):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -97,6 +99,10 @@ def main():
             save_path = save_conversation(model, conversation_history)
             console.print(f"Conversation saved to: {save_path}", style="bold green")
             console.print("Goodbye!", style="bold yellow")
+            break
+        elif user_message.lower() == "/save":
+            save_path = save_conversation(model, conversation_history)
+            console.print(f"Conversation saved to: {save_path}", style="bold green")
             break
         elif user_message.lower() == "/clear":
             conversation_history = [conversation_history[0]]

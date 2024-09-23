@@ -3,21 +3,15 @@
 ## run without install
 
 ```sh
+➜  ~ uvx --from echowuhao hello
+Hello from echowuhao!
+
 ➜  ~ uv tool list
 echowuhao v0.3.4
 - auto_commit
 - hello
 ruff v0.6.4
 - ruff
-➜  ~ uvx echowuhao
-The executable `echowuhao` was not found.
-warning: An executable named `echowuhao` is not provided by package `echowuhao`.
-The following executables are provided by `echowuhao`:
-- auto_commit
-- hello
-➜  ~ uvx --from echowuhao hello
-Hello from echowuhao!
-➜  ~
 ```
 
 ### run latest version without install
@@ -74,6 +68,9 @@ uv develop and build using uv is good
 ```sh
 uv sync
 uv lock
+```
+
+```sh
 uv build
 ```
 
@@ -88,13 +85,6 @@ uvx twine upload dist/*
 ### using uv
 
 ```sh
-uv tool install echowuhao=0.3.4
+uv tool install echowuhao==0.3.4
 ```
 
-or
-
-### using pipx
-
-```sh
-pipx install echowuhao==0.3.4
-```
