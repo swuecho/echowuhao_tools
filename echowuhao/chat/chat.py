@@ -64,6 +64,10 @@ def save_conversation(model: str, conversation_history):
     return save_path
 
 
+HELP_MESSAGE = """Chat started. Type '/clear' to clear conversation, '/exit' to end, '/save' to save,\n
+                '/h' to help, '/system' to view/change the system prompt."""
+
+
 def main():
     # Read the selected model from the JSON file
     storage_path = get_config_dir()
@@ -81,7 +85,7 @@ def main():
     conversation_history = [{"role": "system", "content": default_system_message}]
 
     console.print(
-        "Chat started. Type '/clear' to clear conversation, '/exit' to end,  '/h' to help, '/system' to view/change the system prompt.",
+        HELP_MESSAGE,
         style="bold cyan",
     )
 
@@ -91,7 +95,7 @@ def main():
 
         if user_message.lower() == "/h":
             console.print(
-                "Chat started. Type '/clear' to clear conversation, '/exit' to end,  '/h' to help, '/system' to view/change the system prompt.",
+                HELP_MESSAGE,
                 style="bold cyan",
             )
             continue
