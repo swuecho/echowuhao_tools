@@ -81,7 +81,7 @@ def main():
 
     # Display the selected model
     console.print(f"Using model: {selected_model['id']}", style="bold blue")
-    default_system_message = "You are a helpful AI assistant."
+    default_system_message = get_default_system_message()
     conversation_history = [{"role": "system", "content": default_system_message}]
 
     console.print(
@@ -107,7 +107,7 @@ def main():
         elif user_message.lower() == "/save":
             save_path = save_conversation(model, conversation_history)
             console.print(f"Conversation saved to: {save_path}", style="bold green")
-            break
+            continue
         elif user_message.lower() == "/clear":
             conversation_history = [conversation_history[0]]
             console.clear()
