@@ -5,106 +5,143 @@
 # ]
 # ///
 """
-translate from  https://github.com/zhufengme/GPTCommit/blob/main/gptcommit.sh
-
+Auto-commit script that generates commit messages using AI
+Based on: https://github.com/zhufengme/GPTCommit/blob/main/gptcommit.sh
 """
 import os
 import subprocess
 import requests
 
-# 设置你的 OpenAI API 密钥
+# Configuration
 OPENAI_API_KEY = os.getenv('DEEPSEEK_API_KEY', '')
 LLM_URL = "https://api.deepseek.com/v1/chat/completions"
-
-# 设置你的 Proxy，默认使用HTTPS_PROXY环境变量
 HTTP_PROXY = os.getenv('HTTPS_PROXY', '')
 
-def get_git_diff(diff_type):
+def run_git_command(args, cwd=None, return_output=True):
+    """Run git command and return output or success status"""
     try:
-        result = subprocess.check_output(['git', 'diff'] + diff_type, text=True, cwd=os.getcwd())
-        return result
+        result = subprocess.check_output(['git'] + args, text=True, cwd=cwd or os.getcwd())
+        return result if return_output else True
     except subprocess.CalledProcessError as e:
-        print(f"Error getting git diff: {e}")
-        return ""
+        print(f"Git command failed: {e}")
+        return "" if return_output else False
 
-def generate_commit_message(diff):
+def get_changes(diff_type):
+    """Get changes for given diff type (working or staged)"""
+    return {
+        'summary': run_git_command(['diff', '--stat'] + diff_type),
+        'files': run_git_command(['diff', '--name-only'] + diff_type),
+        'full': run_git_command(['diff'] + diff_type)
+    }
+
+def truncate_diff(diff, max_length=10000):
+    """Intelligently truncate diff while preserving important information"""
+    if len(diff) <= max_length:
+        return diff
+    
+    lines = diff.split('\n')
+    headers, context = [], []
+    
+    # Separate headers from context
+    for line in lines:
+        if any(line.startswith(prefix) for prefix in ['diff --git', '---', '+++', '@@', '+', '-']):
+            headers.append(line)
+        else:
+            context.append(line)
+    
+    # Add all headers first, then context if space allows
+    result = headers + context[:max_length//100]  # Rough estimate for context lines
+    truncated = '\n'.join(result)
+    
+    if len(truncated) > max_length:
+        truncated = truncated[:max_length-50] + "\n... (truncated)"
+    
+    print(f"Diff truncated from {len(diff)} to {len(truncated)} characters")
+    return truncated
+
+def generate_commit_message(content, changed_files=""):
+    """Generate commit message using AI API"""
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {OPENAI_API_KEY}",
     }
+    
     payload = {
         "model": "deepseek-chat",
-        "messages": [
-            {
-                "role": "user",
-                "content": f"write a concise commit message in plain text：\n\n{diff}\n\nCommit message:",
-            }
-        ],
+        "messages": [{
+            "role": "user",
+            "content": f"Write a concise commit message in plain text:\n\n{content}\n\nCommit message:"
+        }],
         "max_tokens": 100,
         "temperature": 0.7,
     }
-    proxies = {
-        "https": HTTP_PROXY,
-    } if HTTP_PROXY else {}
-
+    
+    proxies = {"https": HTTP_PROXY} if HTTP_PROXY else {}
+    
     try:
-        response = requests.post(LLM_URL,
-                                 headers=headers,
-                                 proxies=proxies,
-                                 json=payload,
-                                 timeout=20)
+        response = requests.post(LLM_URL, headers=headers, proxies=proxies, 
+                               json=payload, timeout=20)
         response.raise_for_status()
         return response.json()['choices'][0]['message']['content']
     except requests.RequestException as e:
-        print(f"Error calling OpenAI API: {e}")
-        return ""
+        print(f"API call failed: {e}")
+        # Fallback to file-based commit message
+        if changed_files:
+            files = [f.strip() for f in changed_files.split('\n') if f.strip()]
+            if files:
+                file_list = ', '.join(files[:3])
+                return f"Update {file_list}{'...' if len(files) > 3 else ''}"
+        return "Update files"
+
+def commit_and_push(commit_message):
+    """Execute git add, commit, and push"""
+    commands = [
+        (['add', '.', '-A'], "Adding changes"),
+        (['commit', '-m', commit_message], "Committing changes"),
+        (['push'], "Pushing changes")
+    ]
+    
+    for args, description in commands:
+        print(f"{description}...")
+        if not run_git_command(args, return_output=False):
+            print(f"Failed to {description.lower()}")
+            return False
+    return True
 
 def main():
-    # 检查工作目录状态
-    print("检查工作目录状态...")
-    try:
-        subprocess.run(['git', 'status'], check=True, cwd=os.getcwd())
-    except subprocess.CalledProcessError as e:
-        print(f"Error checking git status: {e}")
+    """Main execution flow"""
+    print("Checking repository status...")
+    if not run_git_command(['status'], return_output=False):
         return
-
-    # 获取工作目录和暂存区之间的差异
-    working_diff = get_git_diff([])
-    # 获取暂存区和HEAD之间的差异
-    staged_diff = get_git_diff(['--cached'])
-
-    # 合并差异
-    diff = working_diff + staged_diff
-
-    # 如果没有差异，退出
-    if not diff.strip():
-        print("没有发现差异。")
-        return
-
-    # 获取生成的提交注释
-    commit_message = generate_commit_message(diff)
-    print(commit_message)
     
-    # git add
-    print("git add...")
-    try:
-        subprocess.run(['git', 'add', '.',  '-A'], check=True, cwd=os.getcwd())
-    except subprocess.CalledProcessError as e:
-        print(f"Error adding changes: {e}")
+    # Get all changes
+    working = get_changes([])
+    staged = get_changes(['--cached'])
+    
+    # Combine changes
+    all_files = working['files'] + staged['files']
+    all_summary = working['summary'] + staged['summary']
+    all_diff = working['full'] + staged['full']
+    
+    if not all_diff.strip():
+        print("No changes detected.")
         return
+    
+    # Prepare content for commit message generation
+    if all_summary.strip():
+        content = f"Changed files summary:\n{all_summary}\n\nChanged files:\n{all_files}"
+    else:
+        content = truncate_diff(all_diff)
+    
+    # Generate commit message
+    commit_message = generate_commit_message(content, all_files)
+    print(f"Generated commit message: {commit_message}")
+    
+    # Execute git operations
+    if commit_and_push(commit_message):
+        print("Successfully committed and pushed changes!")
+    else:
+        print("Failed to complete git operations.")
 
-    # 提交代码
-    print("git commit...")
-    try:
-        subprocess.run(['git', 'commit', '-m', commit_message], check=True, cwd=os.getcwd())
-    except subprocess.CalledProcessError as e:
-        print(f"Error committing changes: {e}")
-        return
-    # push
-    # push
-    print("git push...")
-    try:
-        subprocess.run(['git', 'push'], check=True, cwd=os.getcwd())
-    except subprocess.CalledProcessError as e:
-        print(f"Error pushing changes: {e}")
-        return
+if __name__ == "__main__":
+    main()
